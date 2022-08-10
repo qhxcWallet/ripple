@@ -89,7 +89,9 @@ func (txm *TransactionWithMetaData) UnmarshalJSON(b []byte) error {
 		// i.e. it comes from `ledger` command.
 		// Further, "metaData" for payments has "DeliveredAmount" instead of the expected "delivered_amount", so clean that up first.
 		b = bytes.Replace(b, []byte("\"DeliveredAmount\":"), []byte("\"delivered_amount\":"), 1)
-
+		// hqx 修改 The delivered_amount field is generated on-demand for the request, and is not included in the binary format for transaction metadata, nor is it used when calculating the hash of the transaction metadata. In contrast,
+		//the DeliveredAmount field is included in the binary format for partial payment transactions after 2014-01-20.
+		b = bytes.Replace(b, []byte("\"delivered_amount\":\"unavailable\""), []byte("\"delivered_amount\":\"0\""), 1)
 		// Parse the rest in one shot
 		extract := &struct {
 			*txmNormal
